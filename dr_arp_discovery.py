@@ -16,6 +16,7 @@ if __name__ == "__main__":
     try:
         interface = input("Enter desired interface: ")
         ips = input("Enter range of IPs to Scan for: ")
+        mode = input("Connection (1.WiFi 2.Lan): ")
         timeout_max = int(input("Enter desire timeout (15,30,60):"))
 
     except KeyboardInterrupt:
@@ -32,13 +33,24 @@ if __name__ == "__main__":
 
     fd = open(lastname_2+delimiter+lastname_1+delimiter+scanMode_1+delimiter+strTimeStamp+extension, 'w')
 
+    if mode == '1':
+        title = lastname_2+delimiter+lastname_1+delimiter+scanMode_2+delimiter+strTimeStamp+extension
+    else:
+        title = lastname_2+delimiter+lastname_1+delimiter+scanMode_1+delimiter+strTimeStamp+extension
+
+    fd.write("<{}>\n".format(title))
+    fd.write(ips + "\n")
+
     conf.verb = 0
     ans, unans = srp(Ether(dst="ff:ff:ff:ff:ff:ff")/ARP(pdst=ips), timeout=timeout_max, iface=interface, verbose=False)
 
     #print ans.summary()
     print ('MAC - IP')
     for s, r in ans:
-        print (r.sprintf(r'%Ether.src% - %ARP.psrc%'))
+        #print (r.sprintf(r'%Ether.src% %ARP.psrc%'))
+        line = "{}\t{}".format(r.sprintf(r'%Ether.src%'), r.sprintf(r'%ARP.psrc%'))
+        fd.write(line + "\n")
+        print(line)
 
     stop_time = datetime.now()
     total_time = stop_time - start_time
